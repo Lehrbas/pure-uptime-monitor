@@ -11,9 +11,12 @@ const server = http.createServer((req, res) => {
     // Regex to trim out slashes from both sides
     let trimmedPath = path.replace(/^\/+|\/+$/g, '');
 
+    //Get http method
+    let method = req.method.toLowerCase();
+
     res.end('hey!\n');
 
-    console.log('path: ' + trimmedPath)
+    console.log(`Path: ${trimmedPath} with method: ${method}`)
 });
 
 server.listen(3000, () => {
