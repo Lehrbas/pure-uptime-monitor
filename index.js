@@ -13,12 +13,16 @@ const server = http.createServer((req, res) => {
 
     //Get object query string for url with params
     let queryStringObject = parsedUrl.query;
+
     //Get http method
     let method = req.method.toLowerCase();
 
+    //Get headers as an object
+    let headers = req.headers;
+
     res.end('hey!\n');
 
-    console.log(queryStringObject, method);
+    console.log(headers);
 });
 
 server.listen(3000, () => {
