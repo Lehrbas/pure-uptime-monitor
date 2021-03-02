@@ -36,8 +36,33 @@ const server = http.createServer((req, res) => {
     // this is called even if there is no payload
     req.on('end', () => {
         buffer += decoder.end();
-        res.end('hey!\n');
-        console.log(buffer);
+
+        // Redirect to path handler if exists, if not use notFound handler
+        let chosenHandler = typeof (router[trimmedPath]) !== undefined ? handlers[trimmedPath] : handlers.notFound;
+
+        let data = {
+            'trimmedPath': trimmedPath,
+            'queryStringObject': queryStringObject,
+            'payload': buffer,
+            'method': method,
+            'headers': headers
+        };
+
+        // Route the request to the specified handler
+        chosenHandler(data, (status, payload) => {
+            // Use status from handler callback or default to 200
+            status = typeof (status) == 'number' ? status : 200;
+            // Use payload form handler callback or default to empty object
+            payload = typeof (payload) == 'object' ? payload : {};
+
+            // Convert payload to string, this is the payload that is send back to the user
+            let payloadString = JSON.stringify(payload);
+
+            res.writeHead(status);
+            res.end(payloadString);
+
+            console.log(status, payloadString)
+        });
     });
 });
 
@@ -45,3 +70,19 @@ server.listen(3000, () => {
     console.log('Server listening on port 3000');
 });
 
+// Define handlers
+const handlers = {};
+
+handlers.sample = (data, callback) => {
+    // Callback a http code, and a payload object
+    callback(200, { 'name': 'sample handler' });
+};
+
+handlers.notFound = (data, callback) => {
+    callback(404);
+};
+
+// Define a request router
+const router = {
+    'sample': handlers.sample
+}
