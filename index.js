@@ -58,6 +58,7 @@ const server = http.createServer((req, res) => {
             // Convert payload to string, this is the payload that is send back to the user
             let payloadString = JSON.stringify(payload);
 
+            res.setHeader('Content-Type', 'application/json');
             res.writeHead(status);
             res.end(payloadString);
 
