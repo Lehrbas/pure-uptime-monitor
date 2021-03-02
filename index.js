@@ -1,5 +1,6 @@
 const http = require('http');
 const url = require('url');
+const StringDecoder = require('string_decoder').StringDecoder;
 
 const server = http.createServer((req, res) => {
     // Get requested URL
@@ -20,9 +21,24 @@ const server = http.createServer((req, res) => {
     //Get headers as an object
     let headers = req.headers;
 
-    res.end('hey!\n');
+    //Get payload if exists
+    //As the data in streming in, everytime a little bit is streaming in
+    // it emits the event data, everytime it emits, it decodes to utf-8
+    //  and appends to the buffer string
+    let decoder = new StringDecoder('utf-8');
+    let buffer = '';
 
-    console.log(headers);
+    req.on('data', (data) => {
+        buffer += decoder.write(data);
+    });
+
+    //When the request finishes emiting the data event, or end of request
+    // this is called even if there is no payload
+    req.on('end', () => {
+        buffer += decoder.end();
+        res.end('hey!\n');
+        console.log(buffer);
+    });
 });
 
 server.listen(3000, () => {
